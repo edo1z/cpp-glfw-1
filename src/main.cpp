@@ -36,6 +36,8 @@ int main(void) {
   std::cout << "Renderer: " << renderer << std::endl;
   std::cout << "OpenGL version supported: " << version << std::endl;
 
+  glClearColor(0.0f, 0.3f, 0.6f, 0.3f);
+
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
     glfwSwapBuffers(window);
