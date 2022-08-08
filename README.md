@@ -67,9 +67,9 @@ extern void glClear (GLbitfield mask) OPENGL_DEPRECATED(10.0, 10.14);
 ## Makefileを作る
 
 ```Makefile
-CPPFLAGS := -I src/includes
+CPPFLAGS := -I src/includes -I ${CPATH}
 FRAMEWORKS := -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
-LIBS := -lglfw
+LIBS := -L ${LIBRARY_PATH} -lglfw -lGLEW
 
 BUILD_DIR := ./bin
 SRC_DIRS := ./src
