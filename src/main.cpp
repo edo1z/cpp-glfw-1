@@ -3,10 +3,13 @@
 #  include <GL/glew.h>
 #  include <GLFW/glfw3.h>
 #endif
-
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
+#include <memory>
 #include <vector>
+
+#include "Shape.h"
 using namespace std;
 
 GLboolean printShaderInfoLog(GLuint shader, const char* str)
@@ -72,12 +75,53 @@ GLuint createProgram(const char* vsrc, const char* fsrc)
   return 0;
 }
 
+bool readShaderSource(const char* name, vector<GLchar>& buffer)
+{
+  if (name == NULL) return false;
+  ifstream file(name, ios::binary);
+  if (file.fail()) {
+    cerr << "Error: Can't open source file: " << name << endl;
+    return false;
+  }
+  file.seekg(0L, ios::end);
+  GLsizei length = static_cast<GLsizei>(file.tellg());
+  buffer.resize(length + 1);
+  file.seekg(0L, ios::beg);
+  file.read(buffer.data(), length);
+  buffer[length] = '\0';
+
+  if (file.fail()) {
+    cerr << "Error: Could not read souce file: " << name << endl;
+    file.close();
+    return false;
+  }
+
+  file.close();
+  return true;
+}
+
+GLuint loadProgram(const char* vert, const char* frag)
+{
+  vector<GLchar> vsrc;
+  const bool     vstat(readShaderSource(vert, vsrc));
+  vector<GLchar> fsrc;
+  const bool     fstat(readShaderSource(frag, fsrc));
+  return vstat && fstat ? createProgram(vsrc.data(), fsrc.data()) : 0;
+}
+
 static void key_callback(
     GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
+
+constexpr Object::Vertex rectangleVertex[] = {
+  {-0.5f, -0.5f},
+  { 0.5f, -0.5f},
+  { 0.5f,  0.5f},
+  {-0.5f,  0.5f},
+};
 
 int main(void)
 {
@@ -111,27 +155,16 @@ int main(void)
   std::cout << "Renderer: " << renderer << std::endl;
   std::cout << "OpenGL version supported: " << version << std::endl;
 
-  glClearColor(0.0f, 0.3f, 0.6f, 1.0f);
+  glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-  static const GLchar vsrc[] = "#version 150 core¥n"
-                               "in vec4 position;\n"
-                               "void main()\n"
-                               "{\n"
-                               " gl_Position = position;\n"
-                               "}\n";
-  // フラグメントシェーダのソースプログラム
-  static const GLchar fsrc[] = "#version 150 core\n"
-                               "out vec4 fragment;\n"
-                               "void main()\n"
-                               "{\n"
-                               " fragment = vec4(1.0, 0.0, 0.0, 1.0);\n"
-                               "}\n";
-  // プログラムオブジェクトを作成する
-  const GLuint        program(createProgram(vsrc, fsrc));
+  const GLuint            program(loadProgram("point.vert", "point.frag"));
+
+  unique_ptr<const Shape> shape(new Shape(2, 4, rectangleVertex));
 
   while (! glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(program);
+    shape->draw();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

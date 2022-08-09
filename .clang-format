@@ -55,7 +55,7 @@ UseTab: Never
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: false
-  AfterClass: false
+  AfterClass: true
   AfterControlStatement: MultiLine
   AfterEnum: false
   AfterFunction: true

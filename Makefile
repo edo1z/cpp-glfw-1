@@ -1,4 +1,4 @@
-CPPFLAGS := -I src/includes -I ${CPATH}
+CPPFLAGS := -g -Wall -std=c++17 -I src/includes -I ${CPATH}
 FRAMEWORKS := -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
 LIBS := -L ${LIBRARY_PATH} -lglfw -lGLEW
 
